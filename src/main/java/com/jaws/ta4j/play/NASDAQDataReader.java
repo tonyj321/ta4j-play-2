@@ -46,6 +46,10 @@ public final class NASDAQDataReader {
         return timeSeriesMap.get(symbol);
     }
 
+    public Map<String, TimeSeries> getTimeSeriesMap() {
+        return Collections.unmodifiableMap(timeSeriesMap);
+    }
+
     Map<String, TimeSeries> scanDirectory(Path directory) throws IOException, FileNotFoundException, ParseException {
         Map<String, List<Bar>> fullBarMap = new HashMap<>();
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(directory)) {

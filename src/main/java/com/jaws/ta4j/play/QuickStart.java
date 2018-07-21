@@ -23,7 +23,7 @@
 package com.jaws.ta4j.play;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.sql.SQLException;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.CashFlow;
 import org.ta4j.core.analysis.criteria.AverageProfitableTradesCriterion;
@@ -44,12 +44,11 @@ import org.ta4j.core.trading.rules.StopLossRule;
  */
 public class QuickStart {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
 
         // Getting a time series (from any provider: CSV, web service, etc.)
-        NASDAQDataReader reader = new NASDAQDataReader(Paths.get("/home/tonyj/Data/NASDAQ"));
+        H2Loader reader = new H2Loader();
         TimeSeries series = reader.getTimeSeries("AAPL");
-
 
         // Getting the close price of the bars
         Decimal firstClosePrice = series.getBar(0).getClosePrice();
