@@ -22,6 +22,8 @@
  */
 package com.jaws.ta4j.play;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.CashFlow;
 import org.ta4j.core.analysis.criteria.AverageProfitableTradesCriterion;
@@ -34,7 +36,6 @@ import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
 import org.ta4j.core.trading.rules.StopGainRule;
 import org.ta4j.core.trading.rules.StopLossRule;
-import ta4jexamples.loaders.CsvTradesLoader;
 
 /**
  * Quickstart for ta4j.
@@ -43,10 +44,11 @@ import ta4jexamples.loaders.CsvTradesLoader;
  */
 public class QuickStart {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // Getting a time series (from any provider: CSV, web service, etc.)
-        TimeSeries series = CsvTradesLoader.loadBitstampSeries();
+        NASDAQDataReader reader = new NASDAQDataReader(Paths.get("/home/tonyj/Data/NASDAQ"));
+        TimeSeries series = reader.getTimeSeries("AAPL");
 
 
         // Getting the close price of the bars
