@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.ta4j.core.Bar;
@@ -33,17 +35,21 @@ public final class NASDAQDataReader {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private Map<String, TimeSeries> timeSeriesMap;
-    
+
     NASDAQDataReader(Path dir) throws IOException {
         try {
             timeSeriesMap = scanDirectory(dir);
         } catch (FileNotFoundException | ParseException ex) {
             throw new IOException("Error reading NASDAQ data", ex);
-        } 
+        }
     }
 
     TimeSeries getTimeSeries(String symbol) {
         return timeSeriesMap.get(symbol);
+    }
+
+    private Set<String> getAvailableSymbols() {
+       return Collections.unmodifiableSet(timeSeriesMap.keySet());
     }
 
     public Map<String, TimeSeries> getTimeSeriesMap() {
@@ -61,8 +67,8 @@ public final class NASDAQDataReader {
         Map<String, TimeSeries> result = new HashMap<>();
         fullBarMap.forEach((symbol, bars) -> {
             Collections.sort(bars, (Bar b1, Bar b2) -> b1.getBeginTime().compareTo(b2.getBeginTime()));
-            TimeSeries ts = new BaseTimeSeries(symbol,bars);
-            result.put(symbol,ts);
+            TimeSeries ts = new BaseTimeSeries(symbol, bars);
+            result.put(symbol, ts);
         });
         return result;
     }
@@ -85,13 +91,13 @@ public final class NASDAQDataReader {
                     }
                     String[] data = line.split(",");
                     String symbol = data[0];
-                    ZonedDateTime date = LocalDate.parse(data[1], DATE_FORMAT).atStartOfDay(ZoneId.systemDefault());
+                    ZonedDateTime date = LocalDate.parse(data[1], DATE_FORMAT).atStartOfDay(ZoneId.of("America/New_York"));
                     double open = Double.parseDouble(data[2]);
                     double high = Double.parseDouble(data[3]);
                     double low = Double.parseDouble(data[4]);
                     double close = Double.parseDouble(data[5]);
                     double volume = Double.parseDouble(data[6]);
-                    BaseBar bar = new BaseBar(date, open, high, low, close, volume);
+                    BaseBar bar = new BaseBar(date.plusDays(1), open, high, low, close, volume);
                     List<Bar> bars = barMap.get(symbol);
                     if (bars == null) {
                         bars = new ArrayList<>();
@@ -113,5 +119,22 @@ public final class NASDAQDataReader {
                 existing.addAll(bars);
             }
         });
+    }
+
+    public static void main(String[] args) throws IOException {
+        LocalDate date = LocalDate.parse("20080101",DATE_FORMAT);
+        System.out.println(date);
+        ZonedDateTime ldt = date.atStartOfDay(ZoneId.of("America/New_York"));
+        System.out.println(ldt);
+        NASDAQDataReader reader = new NASDAQDataReader(Paths.get("/home/tonyj/Data/NASDAQ"));
+        Set<String> availableSymbols = reader.getAvailableSymbols();
+        System.out.println(availableSymbols);
+        TimeSeries series = reader.getTimeSeries("AAPL");
+        System.out.println(series.getBarCount());
+        System.out.println(series.getFirstBar().getBeginTime());
+        System.out.println(series.getFirstBar().getEndTime());
+        System.out.println(series.getLastBar().getBeginTime());
+        System.out.println(series.getLastBar().getEndTime());
+        System.out.println(series.getFirstBar().getBeginTime().toInstant());
     }
 }

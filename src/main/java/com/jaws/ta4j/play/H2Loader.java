@@ -49,13 +49,13 @@ public class H2Loader implements AutoCloseable {
         List<Bar> bars = new ArrayList<>();
         while (rs.next()) {
             long date = rs.getLong(1);
-            ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(date),ZoneId.of("UTC"));
+            ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(date),ZoneId.of("America/New_York"));
             double open = rs.getDouble(2);
             double close = rs.getDouble(3);
             double high = rs.getDouble(4);
             double low = rs.getDouble(5);
             double volume = rs.getDouble(6);
-            BaseBar bar = new BaseBar(zdt, open, high, low, close, volume);
+            BaseBar bar = new BaseBar(zdt.plusDays(1), open, high, low, close, volume);
             bars.add(bar);
         }
         return new BaseTimeSeries(symbol,bars);        
