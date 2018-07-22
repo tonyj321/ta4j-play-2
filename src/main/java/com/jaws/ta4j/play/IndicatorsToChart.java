@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jaws.ta4j.play;
 
 import java.sql.SQLException;
@@ -101,7 +96,7 @@ public class IndicatorsToChart {
           Creating the chart
          */
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
-                "Apple Inc. 2013 Close Prices", // title
+                "Apple Inc. Close Prices", // title
                 "Date", // x-axis label
                 "Price Per Unit", // y-axis label
                 dataset, // data
